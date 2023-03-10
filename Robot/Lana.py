@@ -11,6 +11,8 @@ class Lana:
         self.degree_to_radians = np.pi / 180.0
         self.robot_orientation = (platform_length - base_length) * math.tan(30*self.degree_to_radians) / 2.0
         self.current_position = self.forward(self.current_angle[0], self.current_angle[1], self.current_angle[2])
+        self.min_angle = -5
+        self.max_angle = 60
 
     def forward(self, theta_a, theta_b, theta_c):
         self.current_angle = [theta_a, theta_b, theta_c]
@@ -44,6 +46,31 @@ class Lana:
         x = (a1 * z + b1) / distance_difference;
         y = (a2 * z + b2) / distance_difference;
         return x, y, z
+
+    def inverse(self, x,y,z):
+        theta_a, theta_b, theta_c = 0, 0, 0
+        theta_a = self.get_angle(x,y,z)
+        if (theta_a != "error"):
+            theta_b = self.get_angle(x*math.cos(120*self.degree_to_radians)+y*math.sin(120*self.degree_to_radians),
+                                y*math.cos(120*self.degree_to_radians)-x*math.sin(120*self.degree_to_radians),z)
+            if theta_b != "error":
+                theta_c = self.get_angle(x*math.cos(120*self.degree_to_radians)-y*math.sin(120*self.degree_to_radians),
+                                y*math.cos(120*self.degree_to_radians)+x*math.sin(120*self.degree_to_radians),z)
+        return theta_a, theta_b, theta_c
+
+
+    def get_angle(self, x, y,z):
+        y1 = -0.5 * math.tan(30* self.degree_to_radians) * self.platform_length
+        y -= 0.5 *math.tan(30* self.degree_to_radians) * self.base_length
+        aV = (x*x + y*y + z*z + self.arm_length**2- self.rod_length**2-y1**2 )/(2.0*z)
+        bV = (y1-y)/z
+        dV = -(aV+bV*y1) * (aV+bV*y1)+self.arm_length*(bV*bV*self.arm_length+self.arm_length)
+        if (dV < 0):
+            return "error"
+        yj =  (y1 - aV*bV - math.sqrt(dV))/(bV*bV + 1)
+        zj = aV + bV * yj
+        return math.atan2(-zj,(y1-yj)) * 180.0/math.pi
+
 
 
 
