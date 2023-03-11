@@ -8,6 +8,8 @@ class Lana:
         self. rod_length = rod_length
         self.base_length = base_length
         self.current_angle = [0.0, 0.0, 0.0]
+        self.min_angle = -5.0
+        self.max_angle = 40
         self.degree_to_radians = np.pi / 180.0
         self.robot_orientation = (platform_length - base_length) * math.tan(30*self.degree_to_radians) / 2.0
         self.current_position = self.forward(self.current_angle[0], self.current_angle[1], self.current_angle[2])
